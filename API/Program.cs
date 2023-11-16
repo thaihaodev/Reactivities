@@ -1,6 +1,7 @@
 //Đây là bước đầu tiên trong việc tạo một ứng dụng ASP.NET Core. 
 //WebApplication.CreateBuilder(args) tạo một đối tượng WebApplication và cấu hình nó bằng cách sử dụng các thông số được truyền vào thông qua biến args. 
 //builder sẽ được sử dụng để cấu hình ứng dụng và tạo ra các dịch vụ cần thiết.
+using Application.Activities;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -17,9 +18,24 @@ builder.Services.AddEndpointsApiExplorer();
 // Dòng này thêm dịch vụ SwaggerGen vào container dịch vụ. SwaggerGen là một công cụ cho phép tạo tài liệu API dựa trên chuẩn OpenAPI/Swagger.
 builder.Services.AddSwaggerGen();
 
+//Cấu hình CORS để viết api
+//Thêm dịch vụ CORS vào container DI (Dependency Injection) của ứng dụng
+builder.Services.AddCors(opt =>
+{
+    // định nghĩa một chính sách CORS có tên "CorsPolicy". Chính sách này là tập hợp các quy tắc cấu hình cho CORS middleware.
+    opt.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.AllowAnyHeader() //Cho phép tất cả các loại header HTTP từ nguồn gốc khác.
+        .AllowAnyMethod() //Cho phép tất cả các phương thức HTTP (GET, POST, PUT, DELETE, vv.).
+        .WithOrigins("http://localhost:3000"); //Cho phép các yêu cầu từ nguồn có địa chỉ là "http://localhost:3000". Điều này thường được sử dụng để cho phép yêu cầu từ trang web chạy trên máy chủ localhost.
+    });
+});
+
 //đăng ký một DataContext (DbContext) trong container dịch vụ của ứng dụng và cấu hình nó để sử dụng cơ sở dữ liệu SQLite với chuỗi kết nối được định nghĩa trong tệp cấu hình. 
 //Điều này cho phép ứng dụng sử dụng Entity Framework Core để tương tác với cơ sở dữ liệu SQLite thông qua DataContext
 builder.Services.AddDbContext<DataContext>(opt => opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(List.Handler).Assembly));
 
 //Dòng này sử dụng builder để xây dựng ứng dụng. Sau khi ứng dụng được xây dựng, bạn có thể cấu hình nó và thêm các middleware.
 var app = builder.Build();
@@ -54,6 +70,6 @@ catch (Exception ex)
     var logger = services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred during migration");
 }
-
+app.UseCors("CorsPolicy");
 // Dòng này bắt đầu chạy ứng dụng và lắng nghe các yêu cầu HTTP đến server
 app.Run();
