@@ -17,12 +17,14 @@ namespace Application.Activities
         //cho biết rằng nó có khả năng xử lý yêu cầu kiểu Query và trả về một danh sách hoạt động.
         public class Handler : IRequestHandler<Query, List<Activity>>
         {
+            //DI
             private readonly DataContext _context;
 
             public Handler(DataContext context)
             {
                 _context = context;
             }
+            //
             //Đây là phương thức xử lý yêu cầu Query
             //Nó chấp nhận một đối tượng request kiểu Query (Bên Handler), nhưng trong trường hợp này, thông qua MediatR, 
             //request thường không chứa nhiều thông tin vì chức năng lấy danh sách hoạt động đã được xác định trước.
