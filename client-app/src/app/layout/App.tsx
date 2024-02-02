@@ -6,6 +6,7 @@ import { Activity } from "../models/activity";
 import NavBar from "./NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
 import { v4 as uuid } from "uuid";
+import agent from "../api/agent";
 
 function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -14,18 +15,25 @@ function App() {
   >(undefined);
 
   const [editMode, setEditMode] = useState(false);
-
+  ////////// Bài 62
   useEffect(() => {
-    axios
-      .get<Activity[]>("http://localhost:5000/api/activities")
+    // axios
+    //   .get<Activity[]>("http://localhost:5000/api/activities")
+    //   .then((res) => {
+    //     setActivities(res.data);
+    //     // console.log("hehe", res);
+    //   })
+    //   .catch((err) => {
+    //     console.log("err", err);
+    //   });
+    console.log("cc");
+    agent.Activities.list()
       .then((res) => {
-        setActivities(res.data);
-        // console.log("hehe", res);
+        setActivities(res);
       })
       .catch((err) => {
         console.log("err", err);
       });
-    return () => {};
   }, []);
 
   const handleSelectActivity = (id: string) => {
