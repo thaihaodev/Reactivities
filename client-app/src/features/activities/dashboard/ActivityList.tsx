@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   Item,
@@ -17,12 +17,19 @@ interface Props {
   activities: Activity[];
   selectActivity: (id: string) => void;
   deleteActivity: (id: string) => void;
+  submitting: boolean;
 }
 const ActivityList = ({
   activities,
   selectActivity,
   deleteActivity,
+  submitting,
 }: Props) => {
+  const [target, setTarget] = useState("");
+  const handleActivityDelete = (e: any, id: string) => {
+    setTarget(e.target.name);
+    deleteActivity(id);
+  };
   return (
     <Segment>
       <ItemGroup divided>
@@ -45,10 +52,12 @@ const ActivityList = ({
                   onClick={() => selectActivity(activity.id)}
                 />
                 <Button
+                  name={activity.id}
                   floated="right"
                   content="Delete"
                   color="red"
-                  onClick={() => deleteActivity(activity.id)}
+                  loading={submitting && target === activity.id}
+                  onClick={(e) => handleActivityDelete(e, activity.id)}
                 />
                 <Label basic content={activity.category} />
               </ItemExtra>

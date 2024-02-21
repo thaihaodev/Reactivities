@@ -7,6 +7,7 @@ import NavBar from "./NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
 import { v4 as uuid } from "uuid";
 import agent from "../api/agent";
+import LoadingComponent from "./LoadingComponent";
 
 function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -15,6 +16,8 @@ function App() {
   >(undefined);
 
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   ////////// Bài 62
   useEffect(() => {
     // axios
@@ -26,10 +29,16 @@ function App() {
     //   .catch((err) => {
     //     console.log("err", err);
     //   });
-    console.log("cc");
+
     agent.Activities.list()
       .then((res) => {
-        setActivities(res);
+        let activities: Activity[] = [];
+        res.forEach((activity) => {
+          activity.date = activity.date.split("T")[0];
+          activities.push(activity);
+        });
+        setActivities(activities);
+        setLoading(false);
       })
       .catch((err) => {
         console.log("err", err);
@@ -54,21 +63,41 @@ function App() {
   };
 
   const handleCreateOrEditActivity = (activity: Activity) => {
-    activity.id
-      ? //Cập nhật
+    setSubmitting(true);
+    if (activity.id) {
+      agent.Activities.update(activity).then(() => {
+        //Cập nhật
         setActivities([
           ...activities.filter((x) => x.id !== activity.id),
           activity,
-        ])
-      : //Tạo mới
-        setActivities([...activities, { ...activity, id: uuid() }]);
-    setEditMode(false);
-    setSelectedActivity(activity);
+        ]);
+        setSelectedActivity(activity);
+        setEditMode(false);
+        setSubmitting(false);
+      });
+    } else {
+      //Tạo mới
+      activity.id = uuid();
+      agent.Activities.create(activity).then(() => {
+        setActivities([...activities, activity]);
+        setSelectedActivity(activity);
+        setEditMode(false);
+        setSubmitting(false);
+      });
+    }
+    // setEditMode(false);
+    // setSelectedActivity(activity);
   };
 
   const handleDeleteActivity = (id: string) => {
-    setActivities([...activities.filter((x) => x.id !== id)]);
+    setSubmitting(true);
+    agent.Activities.delete(id).then(() => {
+      setActivities([...activities.filter((x) => x.id !== id)]);
+      setSubmitting(false);
+    });
   };
+  //nếu loading true thì chạy cái loading, k thì render ra dữ liệu
+  if (loading) return <LoadingComponent content="Loading..." />;
 
   return (
     <Fragment>
@@ -84,6 +113,7 @@ function App() {
           closeForm={handleFormClose}
           createOrEdit={handleCreateOrEditActivity}
           deleteActivity={handleDeleteActivity}
+          submitting={submitting}
         />
       </Container>
     </Fragment>
