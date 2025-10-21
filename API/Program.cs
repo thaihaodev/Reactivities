@@ -8,7 +8,14 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddCors();
+
 var app = builder.Build();
+
+app.UseCors(policy =>
+    policy.AllowAnyHeader()
+          .AllowAnyMethod()
+          .WithOrigins("http://localhost:3000","http://localhost:3000"));
 
 app.MapControllers();
 
