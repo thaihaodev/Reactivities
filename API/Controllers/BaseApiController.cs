@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,5 +8,9 @@ namespace API
     [ApiController]
     public class BaseApiController : ControllerBase
     {
+        //Khai báo để dễ sử dụng bên Controller
+        private IMediator? _mediator;
+        protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetService<IMediator>()
+        ?? throw new InvalidOperationException("IMediator service is not registered.");
     }
 }
