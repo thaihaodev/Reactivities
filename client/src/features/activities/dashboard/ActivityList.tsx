@@ -5,11 +5,11 @@ type Props = {
   activities: Activity[];
   selectActivity: (id: string) => void;
   closeForm: () => void;
-  deleteActivity: (id: string) => void;
 };
 
 const ActivityList = (props: Props) => {
-  const { activities, selectActivity, closeForm, deleteActivity } = props;
+  const { activities, selectActivity, closeForm } = props;
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       {activities.map((activity) => {
@@ -19,7 +19,6 @@ const ActivityList = (props: Props) => {
             activity={activity}
             selectActivity={selectActivity}
             closeForm={closeForm}
-            deleteActivity={deleteActivity}
           />
         );
       })}
